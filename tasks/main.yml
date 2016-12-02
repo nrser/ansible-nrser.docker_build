@@ -1,0 +1,23 @@
+---
+# tasks file for nrser.docker_build
+# 
+# build docker images using yarn for node packages
+
+- tags:
+  - always
+  set_fact:
+    docker_build_cmd: >-
+      docker
+      build .
+      -t {{ docker_build_id }}
+      {% if docker_build_file -%}
+        -f {{ docker_build_file }}
+      {%- endif %}
+
+- include: print.yml
+  tags:
+  - print
+
+- include: build.yml
+  tags:
+  - build

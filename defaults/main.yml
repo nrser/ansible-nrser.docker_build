@@ -1,0 +1,22 @@
+---
+# defaults file for nrser.docker_build
+
+docker_build_dir: "{{ qb_dir }}"
+
+docker_build_owner: null
+
+docker_build_tag: latest
+
+docker_build_id: "{%
+  if docker_build_owner -%}
+    {{ docker_build_owner }}/
+  {%- endif -%}
+  {{ docker_build_name }}:{{ docker_build_tag }}"
+
+docker_build_file: null
+
+docker_build_yarn_cache: false
+
+docker_build_yarn_cache_filename: "{{ docker_build_name }}.yarn-cache.tgz"
+
+docker_build_yarn_cache_dir: /root/.yarn-cache

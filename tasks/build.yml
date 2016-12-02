@@ -1,0 +1,33 @@
+---
+# do the actual building
+# 
+# this is included with the 'build' tag so you can exclude it easily
+# 
+
+- name: create empty yarn cache archive if none present
+  when: docker_build_yarn_cache
+  command: >
+    tar -cvzf {{ docker_build_yarn_cache_filename }} --files-from /dev/null
+  args:
+    chdir: "{{ docker_build_dir }}"
+    creates: "{{ docker_build_dir }}/{{ docker_build_yarn_cache_filename }}"
+
+- name: "build {{ docker_build_id }} docker image"
+  command: "{{ docker_build_cmd }}"
+  args:
+    chdir: "{{ docker_build_dir }}"
+
+- name: save yarn cache from container
+  when: docker_build_yarn_cache
+  tags:
+  - save-yarn-cache
+  shell: >-
+    docker
+    run
+    --rm
+    --entrypoint=tar
+    {{ docker_build_id }}
+    -czf - {{ docker_build_yarn_cache_dir }}
+    > {{ docker_build_yarn_cache_filename }}
+  args:
+    chdir: "{{ docker_build_dir }}"

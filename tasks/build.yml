@@ -13,8 +13,8 @@
     creates: "{{ docker_build_dir }}/{{ docker_build_yarn_cache_filename }}"
 
 - name: "build {{ docker_build_id }} docker image"
-  command: "{{ docker_build_cmd }}"
-  args:
+  stream:
+    cmd: "{{ docker_build_cmd }}"
     chdir: "{{ docker_build_dir }}"
 
 - name: save yarn cache from container

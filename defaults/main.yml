@@ -19,4 +19,4 @@ docker_build_yarn_cache: false
 
 docker_build_yarn_cache_filename: "{{ docker_build_name }}.yarn-cache.tgz"
 
-docker_build_yarn_cache_dir: /root/.yarn-cache
+docker_build_yarn_cache_dir: /root/.cache/yarn

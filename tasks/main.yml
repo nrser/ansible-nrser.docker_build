@@ -3,7 +3,8 @@
 # 
 # build docker images using yarn for node packages
 
-- tags:
+- name: set build command
+  tags:
   - always
   set_fact:
     docker_build_cmd: >-
@@ -11,8 +12,11 @@
       build .
       -t {{ docker_build_id }}
       {% if docker_build_file -%}
-        -f {{ docker_build_file }}
+        --file {{ docker_build_file }}
       {%- endif %}
+      {% for name, value in docker_build_args.iteritems() %}
+        --build-arg {{ name }}={{ value }}
+      {% endfor %}
 
 - include: print.yml
   tags:

@@ -31,3 +31,6 @@
     > {{ docker_build_yarn_cache_filename }}
   args:
     chdir: "{{ docker_build_dir }}"
+
+- debug:
+    msg: "built {{ docker_build_id }} docker container."

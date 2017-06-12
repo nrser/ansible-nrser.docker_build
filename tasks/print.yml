@@ -4,3 +4,4 @@
   debug:  
     msg:
       docker_build_cmd: "{{ docker_build_cmd }}"
+      docker_build_dir: "{{ docker_build_dir }}"

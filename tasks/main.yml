@@ -3,7 +3,7 @@
 # 
 # build docker images using yarn for node packages
 
-- name: set build command
+- name: build build command
   tags:
   - always
   set_fact:
@@ -15,8 +15,14 @@
         --file {{ docker_build_file }}
       {%- endif %}
       {% for name, value in docker_build_args.iteritems() %}
-        --build-arg {{ name }}={{ value }}
+        --build-arg {{ name }}={{ value|quote }}
       {% endfor %}
+
+- name: set build command
+  tags:
+  - always
+  set_fact:
+    docker_build_cmd: "{{ docker_build_cmd.replace('\n', '') }}"
 
 - include: print.yml
   tags:

@@ -15,11 +15,42 @@ docker_build_id: "{%
 
 docker_build_file: null
 
+# Build Caches
+# ============
+
+# Ensure there is a line in <PROJECT_ROOT>/.gitattributes telling Git LFS
+# to track Yarn and Bunlder caches (when used) since they can be quite big.
+docker_build_git_lfs: true
+
+# Yarn Cache
+# ----------
+
 docker_build_yarn_cache: false
 
-docker_build_yarn_cache_filename: "{{ docker_build_name }}.yarn-cache.tgz"
+docker_build_yarn_cache_file: "{{ docker_build_name }}.yarn-cache.tgz"
 
-docker_build_yarn_cache_dir: /root/.cache/yarn
+# Default location on Debain-based with Yarn 0.25.3 installed from Github
+# `yarn_<VERSION>_all.deb` release package.
+# 
+# Seems to have moved around a bit as development progresses, and be different
+# on different OS.
+# 
+# TODO  Used to be `/root/.cache/yarn`... so some containers might still use
+#       that? Could have a list of places to look...
+# 
+docker_build_yarn_cache_dir: /usr/local/share/.cache/yarn/v1
+
+
+# Bunlder Cache
+# -------------
+
+docker_build_bundler_cache: false
+
+docker_build_bundler_cache_file: "{{ docker_build_name }}.bundler-cache.tgz"
+
+# Where Bundler defaults to put the gems (version 1.15.1)
+docker_build_bundler_cache_dir: /usr/local/bundle/cache
+
 
 # values for the docker ARG commands in the container
 # TODO right now can only provide via playbook i think

@@ -1,0 +1,48 @@
+# Ensure lines in <qb_git_repo_root>/.gitattributes for Yarn and Bunlder
+# cache files (if we're using them)
+
+- name: >-
+    Set relative path to cache archive files.
+  set_fact:
+    docker_build_git_lfs_yarn_relpath: >-
+      {{
+        (docker_build_dir + '/' + docker_build_yarn_cache_file)
+        | relpath(qb_git_repo_root)
+      }}
+    docker_build_git_lfs_bundler_relpath: >-
+      {{
+        (docker_build_dir + '/' + docker_build_bundler_cache_file)
+        | relpath(qb_git_repo_root)
+      }}
+
+- name: >-
+    Track Yarn cache archives in Git LFS
+  when: docker_build_yarn_cache
+  lineinfile:
+    path: >-
+      {{ qb_git_repo_root }}/.gitattributes
+    regexp: >-
+      ^{{ docker_build_git_lfs_yarn_relpath | regex_escape() }}\s
+    line: >-
+      {{ docker_build_git_lfs_yarn_relpath }}
+      filter=lfs
+      diff=lfs
+      merge=lfs
+      -text
+    create: true
+
+- name: >-
+    Track Bundler cache archives in Git LFS
+  when: docker_build_bundler_cache
+  lineinfile:
+    path: >-
+      {{ qb_git_repo_root }}/.gitattributes
+    regexp: >-
+      ^{{ docker_build_git_lfs_bundler_relpath | regex_escape() }}\s
+    line: >-
+      {{ docker_build_git_lfs_bundler_relpath }}
+      filter=lfs
+      diff=lfs
+      merge=lfs
+      -text
+    create: true

@@ -15,8 +15,26 @@
         --file {{ docker_build_file }}
       {%- endif %}
       {% for name, value in docker_build_args.iteritems() %}
-        --build-arg {{ name }}={{ value|quote }}
+        --build-arg {{ (name + '=' + value) |quote }}
       {% endfor %}
+      {% if docker_build_yarn_cache %}
+        --build-arg {{
+          (
+            'YARN_CACHE_FILE' +
+            '=' +
+            docker_build_yarn_cache_file
+          ) | quote
+        }}
+      {% endif %}
+      {% if docker_build_bundler_cache %}
+        --build-arg {{
+          (
+            'BUNDLER_CACHE_FILE' +
+            '=' +
+            docker_build_bundler_cache_file
+          ) | quote
+        }}
+      {% endif %}
 
 - name: set build command
   tags:

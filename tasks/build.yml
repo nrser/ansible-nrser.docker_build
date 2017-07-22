@@ -4,13 +4,36 @@
 # this is included with the 'build' tag so you can exclude it easily
 # 
 
+# Add 
+- name: >-
+    Add git-lfs tracking line to <qb_git_repo_root>/.gitattributes
+  when: >-
+    (
+      qb_git_repo_root is defined and
+      docker_build_git_lfs and
+      (docker_build_yarn_cache or docker_build_bundler_cache)
+    )
+  include: >-
+    {{ role_path }}/tasks/git-lfs.yml
+
+- fail:
+    msg: HERE
+
 - name: create empty yarn cache archive if none present
   when: docker_build_yarn_cache
   command: >
-    tar -cvzf {{ docker_build_yarn_cache_filename }} --files-from /dev/null
+    tar -cvzf {{ docker_build_yarn_cache_file }} --files-from /dev/null
   args:
     chdir: "{{ docker_build_dir }}"
-    creates: "{{ docker_build_dir }}/{{ docker_build_yarn_cache_filename }}"
+    creates: "{{ docker_build_dir }}/{{ docker_build_yarn_cache_file }}"
+
+- name: create empty gem cache archive if none present
+  when: docker_build_bundler_cache
+  command: >
+    tar -cvzf {{ docker_build_bundler_cache_file }} --files-from /dev/null
+  args:
+    chdir: "{{ docker_build_dir }}"
+    creates: "{{ docker_build_dir }}/{{ docker_build_bundler_cache_file }}"
 
 - name: "build {{ docker_build_id }} docker image"
   stream:
@@ -28,7 +51,22 @@
     --entrypoint=tar
     {{ docker_build_id }}
     -czf - {{ docker_build_yarn_cache_dir }}
-    > {{ docker_build_yarn_cache_filename }}
+    > {{ docker_build_yarn_cache_file }}
+  args:
+    chdir: "{{ docker_build_dir }}"
+
+- name: save bundler cache from container
+  when: docker_build_bundler_cache
+  tags:
+  - save-bundler-cache
+  shell: >-
+    docker
+    run
+    --rm
+    --entrypoint=tar
+    {{ docker_build_id }}
+    -czf - {{ docker_build_bundler_cache_dir }}
+    > {{ docker_build_bundler_cache_file }}
   args:
     chdir: "{{ docker_build_dir }}"
 

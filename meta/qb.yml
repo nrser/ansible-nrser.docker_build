@@ -72,6 +72,17 @@ options:
   type: string
   short: f
 
+# Build Caches
+
+- name: git_lfs
+  description: >-
+    Ensure <git_repo_root>/.gitattributes has a line to track cache arhives
+    (when they're used).
+  required: false
+  type: boolean
+
+# Yarn cache
+
 - name: yarn_cache
   description: >-
     enable restoring and saving a yarn cache to speed things up / enable
@@ -80,7 +91,7 @@ options:
   type: boolean
   short: y
 
-- name: yarn_cache_filename
+- name: yarn_cache_file
   description: >-
     filename relative to the build directory to save / restore the cache.
   required: false
@@ -92,3 +103,24 @@ options:
   required: false
   type: string
   
+# Bunlder cache
+
+- name: bundler_cache
+  description: >-
+    Enable restoring and saving a Bunlder cache to speed things up.
+  required: false
+  type: boolean
+  short: y
+
+- name: bundler_cache_file
+  description: >-
+    File path relative to the build directory to save / restore the Bunlder
+    cache.
+  required: false
+  type: string
+  
+- name: bundler_cache_dir
+  description: >-
+    Path to Bundler cache directory inside the container.
+  required: false
+  type: string

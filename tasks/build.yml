@@ -16,9 +16,6 @@
   include: >-
     {{ role_path }}/tasks/git-lfs.yml
 
-- fail:
-    msg: HERE
-
 - name: create empty yarn cache archive if none present
   when: docker_build_yarn_cache
   command: >

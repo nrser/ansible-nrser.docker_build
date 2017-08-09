@@ -15,7 +15,7 @@
         --file {{ docker_build_file }}
       {%- endif %}
       {% for name, value in docker_build_args.iteritems() %}
-        --build-arg {{ (name + '=' + value) |quote }}
+        --build-arg {{ ([name, value] | join('=')) | quote }}
       {% endfor %}
       {% if docker_build_yarn_cache %}
         --build-arg {{

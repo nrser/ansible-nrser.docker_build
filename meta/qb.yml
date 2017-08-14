@@ -102,25 +102,3 @@ options:
     path to yarn cache directory inside the container.
   required: false
   type: string
-  
-# Bunlder cache
-
-- name: bundler_cache
-  description: >-
-    Enable restoring and saving a Bunlder cache to speed things up.
-  required: false
-  type: boolean
-  short: y
-
-- name: bundler_cache_file
-  description: >-
-    File path relative to the build directory to save / restore the Bunlder
-    cache.
-  required: false
-  type: string
-  
-- name: bundler_cache_dir
-  description: >-
-    Path to Bundler cache directory inside the container.
-  required: false
-  type: string

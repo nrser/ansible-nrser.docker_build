@@ -26,15 +26,6 @@
           ) | quote
         }}
       {% endif %}
-      {% if docker_build_bundler_cache %}
-        --build-arg {{
-          (
-            'BUNDLER_CACHE_FILE' +
-            '=' +
-            docker_build_bundler_cache_file
-          ) | quote
-        }}
-      {% endif %}
 
 - name: set build command
   tags:

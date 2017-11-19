@@ -33,10 +33,10 @@
   set_fact:
     docker_build_cmd: "{{ docker_build_cmd.replace('\n', '') }}"
 
-- include: print.yml
+- include_tasks: print.yml
   tags:
   - print
 
-- include: build.yml
+- include_tasks: build.yml
   tags:
   - build

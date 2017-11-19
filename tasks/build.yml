@@ -13,7 +13,7 @@
       docker_build_git_lfs and
       docker_build_yarn_cache
     )
-  include: >-
+  include_tasks: >-
     {{ role_path }}/tasks/git-lfs.yml
 
 - name: create empty yarn cache archive if none present

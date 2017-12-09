@@ -40,3 +40,25 @@
 - include_tasks: build.yml
   tags:
   - build
+
+- name: >-
+    Assign additional tags from `docker_build_additional_tags` to the image
+  with_items: >-
+    {{ docker_build_additional_tags }}
+  loop_control:
+    loop_var: additional_tag
+  stream:
+    template:
+      docker tag
+        <%= source %>
+        <%= [ [owner, name].reject( &:nil? ).join( '/' ), tag ].join( ':' ) %>
+    kwds:
+      source: >-
+        {{ docker_build_id }}
+      owner: >-
+        {{ docker_build_owner }}
+      name: >-
+        {{ docker_build_name }}
+      tag: >-
+        {{ additional_tag }}
+  

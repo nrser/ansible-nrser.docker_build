@@ -44,3 +44,7 @@ docker_build_yarn_cache_dir: /usr/local/share/.cache/yarn/v1
 # values for the docker ARG commands in the container
 # TODO right now can only provide via playbook i think
 docker_build_args: []
+
+
+# Optional additional tags to assign to the built image.
+docker_build_additional_tags: []

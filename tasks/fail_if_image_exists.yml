@@ -1,0 +1,21 @@
+##
+# Fail if the image already exists.
+##
+
+- name: >-
+    Look for images named `{{ docker_build_id }}` in host docker service
+  shell: |-
+    docker images --quiet {{ docker_build_id | quote }}
+  register: docker_build_images_results
+  changed_when: false
+
+
+- when: (docker_build_images_results.stdout_lines | length) > 0
+  name: >-
+    Fail if image `{{ docker_build_id }}` already exists on the host
+  fail:
+    msg: >
+      Docker image `{{ docker_build_id }}` already exists in host docker
+      service, image ids: 
+      {{ docker_build_images_results.stdout_lines | join(', ') }}
+

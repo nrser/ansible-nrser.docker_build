@@ -3,6 +3,13 @@
 # 
 # build docker images using yarn for node packages
 
+- when: not docker_build_overwrite
+  name: >-
+    Check that image {{ docker_build_id }} does not already exist
+  include_tasks: >-
+    {{ role_path }}/tasks/fail_if_image_exists.yml
+
+
 - name: build build command
   tags:
   - always

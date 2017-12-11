@@ -7,12 +7,6 @@ docker_build_owner: null
 
 docker_build_tag: latest
 
-docker_build_id: "{%
-  if docker_build_owner -%}
-    {{ docker_build_owner }}/
-  {%- endif -%}
-  {{ docker_build_name }}:{{ docker_build_tag }}"
-
 docker_build_file: null
 
 # Build Caches

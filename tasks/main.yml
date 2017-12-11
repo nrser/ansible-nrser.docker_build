@@ -3,6 +3,17 @@
 # 
 # build docker images using yarn for node packages
 
+- when: docker_build_owner == None
+  set_fact:
+    docker_build_id: >-
+      {{ docker_build_name }}:{{ docker_build_tag }}
+
+- when: docker_build_owner != None
+  set_fact:
+    docker_build_id: >-
+      {{ docker_build_owner }}/{{ docker_build_name }}:{{ docker_build_tag }}
+
+
 - when: not docker_build_overwrite
   name: >-
     Check that image {{ docker_build_id }} does not already exist

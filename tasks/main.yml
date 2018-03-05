@@ -3,80 +3,35 @@
 # 
 # build docker images using yarn for node packages
 
+# Set up variables...
+
 - when: docker_build_owner == None
+  name: >-
+    Set the `docker_build_name_tag` to `<name>:<tag>`
   set_fact:
-    docker_build_id: >-
+    docker_build_name_tag: >-
       {{ docker_build_name }}:{{ docker_build_tag }}
 
+
 - when: docker_build_owner != None
+  name: >-
+    Set the `docker_build_name_tag` to `<owner>/<name>:<tag>`
   set_fact:
-    docker_build_id: >-
+    docker_build_name_tag: >-
       {{ docker_build_owner }}/{{ docker_build_name }}:{{ docker_build_tag }}
 
 
-- when: not docker_build_overwrite
+- when: docker_build_force
   name: >-
-    Check that image {{ docker_build_id }} does not already exist
-  include_tasks: >-
-    {{ role_path }}/tasks/fail_if_image_exists.yml
-
-
-- name: build build command
-  tags:
-  - always
-  set_fact:
-    docker_build_cmd: >-
-      docker
-      build .
-      -t {{ docker_build_id }}
-      {% if docker_build_file -%}
-        --file {{ docker_build_file }}
-      {%- endif %}
-      {% for name, value in docker_build_args.iteritems() %}
-        --build-arg {{ ([name, value] | join('=')) | quote }}
-      {% endfor %}
-      {% if docker_build_yarn_cache %}
-        --build-arg {{
-          (
-            'YARN_CACHE_FILE' +
-            '=' +
-            docker_build_yarn_cache_file
-          ) | quote
-        }}
-      {% endif %}
-
-- name: set build command
-  tags:
-  - always
-  set_fact:
-    docker_build_cmd: "{{ docker_build_cmd.replace('\n', '') }}"
-
-- include_tasks: print.yml
-  tags:
-  - print
-
-- include_tasks: build.yml
+    Force build of image (overwrite if exists)
   tags:
   - build
+  include_tasks: >-
+    {{ role_path }}/tasks/build.yml
 
-- name: >-
-    Assign additional tags from `docker_build_additional_tags` to the image
-  with_items: >-
-    {{ docker_build_additional_tags }}
-  loop_control:
-    loop_var: additional_tag
-  stream:
-    template:
-      docker tag
-        <%= source %>
-        <%= [ [owner, name].reject( &:nil? ).join( '/' ), tag ].join( ':' ) %>
-    kwds:
-      source: >-
-        {{ docker_build_id }}
-      owner: >-
-        {{ docker_build_owner }}
-      name: >-
-        {{ docker_build_name }}
-      tag: >-
-        {{ additional_tag }}
-  
+
+- when: not docker_build_force
+  name: >-
+    Build image if it doesn't already exist
+  include_tasks: >-
+    {{ role_path }}/tasks/conditional_build.yml

@@ -1,7 +1,8 @@
 ---
 # defaults file for nrser.docker_build
 
-docker_build_dir: "{{ qb_dir }}"
+docker_build_dir: >-
+  {{ qb_dir }}
 
 docker_build_owner: null
 
@@ -43,11 +44,7 @@ docker_build_args: []
 # Optional additional tags to assign to the built image.
 docker_build_additional_tags: []
 
-# When false, will fail if the image already exists.
-# 
-# At introduction I'm going to default this to `true`, which maintains the
-# previous behavior, but I'd like to default it to `false` in the future -
-# I think since images often represent versions of software that overwriting
-# should need to be explicit to prevent mix ups.
-# 
-docker_build_overwrite: true
+
+# When true will build the image tag_name even if it already exists
+# (overwriting the tag_name)
+docker_build_force: false

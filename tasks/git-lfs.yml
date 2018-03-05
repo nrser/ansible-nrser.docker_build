@@ -1,4 +1,4 @@
-# Ensure lines in <qb_git_repo_root>/.gitattributes for Yarn and Bunlder
+# Ensure lines in <qb_git_repo_root>/.gitattributes for Yarn and Bundler
 # cache files (if we're using them)
 
 - name: >-

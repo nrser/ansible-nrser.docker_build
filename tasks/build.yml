@@ -1,22 +1,57 @@
 ---
-# do the actual building
+## 
+# Do the actual building
 # 
-# this is included with the 'build' tag so you can exclude it easily
-# 
+# This is included with the 'build' tag so you can exclude it easily
+##
 
-# Add 
 - name: >-
-    Add git-lfs tracking line to <qb_git_repo_root>/.gitattributes
-  when: >-
+    Build `docker build` command string
+  tags:
+  - always
+  set_fact:
+    docker_build_cmd: >-
+      docker
+      build .
+      -t {{ docker_build_name_tag }}
+      {% if docker_build_file -%}
+        --file {{ docker_build_file }}
+      {%- endif %}
+      {% for name, value in docker_build_args.iteritems() %}
+        --build-arg {{ ([name, value] | join('=')) | quote }}
+      {% endfor %}
+      {% if docker_build_yarn_cache %}
+        --build-arg {{
+          (
+            'YARN_CACHE_FILE' +
+            '=' +
+            docker_build_yarn_cache_file
+          ) | quote
+        }}
+      {% endif %}
+
+
+# - name: set build command
+#   tags:
+#   - always
+#   set_fact:
+#     docker_build_cmd: "{{ docker_build_cmd.replace('\n', '') }}"
+
+
+- when: >-
     (
       qb_git_repo_root is defined and
       docker_build_git_lfs and
       docker_build_yarn_cache
     )
+  name: >-
+    Add git-lfs tracking line to `<qb_git_repo_root>/.gitattributes`
   include_tasks: >-
     {{ role_path }}/tasks/git-lfs.yml
 
-- name: create empty yarn cache archive if none present
+
+- name: >-
+    Create empty yarn cache archive if none present
   when: docker_build_yarn_cache
   command: >
     tar -cvzf {{ docker_build_yarn_cache_file }} --files-from /dev/null
@@ -24,25 +59,67 @@
     chdir: "{{ docker_build_dir }}"
     creates: "{{ docker_build_dir }}/{{ docker_build_yarn_cache_file }}"
 
-- name: "build {{ docker_build_id }} docker image"
-  stream:
-    cmd: "{{ docker_build_cmd }}"
-    chdir: "{{ docker_build_dir }}"
 
-- name: save yarn cache from container
-  when: docker_build_yarn_cache
+- name: >-
+    Build {{ docker_build_name_tag }} docker image
+  stream:
+    cmd: >-
+      {{ docker_build_cmd }}
+    chdir: >-
+      {{ docker_build_dir }}
+    log: true
+
+
+- when: docker_build_yarn_cache
+  name: >-
+    Save yarn cache from container
   tags:
   - save-yarn-cache
-  shell: >-
-    docker
-    run
-    --rm
-    --entrypoint=tar
-    {{ docker_build_id }}
-    -czf - {{ docker_build_yarn_cache_dir }}
-    > {{ docker_build_yarn_cache_file }}
-  args:
-    chdir: "{{ docker_build_dir }}"
+  stream:
+    template:
+      docker run
+        --rm
+        --entrypoint=tar
+        <%= docker_build_name_tag %>
+        -czf - <%= docker_build_yarn_cache_dir %> > <%= yarn_cache_file %>
+    
+    kwds:
+      name_tag: >-
+        {{ docker_build_name_tag }}
+      yarn_cache_dir: >-
+        {{ docker_build_yarn_cache_dir }}
+      yarn_cache_file: >-
+        {{ docker_build_yarn_cache_file }}
+    
+    chdir: >-
+      {{ docker_build_dir }}
+    
+    log: true
+  # /stream
+
 
 - debug:
-    msg: "built {{ docker_build_id }} docker container."
+    msg: >-
+      BUILT {{ docker_build_name_tag }} docker container
+
+
+- name: >-
+    Assign additional tags from `docker_build_additional_tags` to the image
+  with_items: >-
+    {{ docker_build_additional_tags }}
+  loop_control:
+    loop_var: additional_tag
+  stream:
+    template:
+      docker tag
+        <%= source %>
+        <%= [ [owner, name].reject( &:nil? ).join( '/' ), tag ].join( ':' ) %>
+    kwds:
+      source: >-
+        {{ docker_build_name_tag }}
+      owner: >-
+        {{ docker_build_owner }}
+      name: >-
+        {{ docker_build_name }}
+      tag: >-
+        {{ additional_tag }}

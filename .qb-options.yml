@@ -2,3 +2,6 @@
 qb.qb_role:
   project: true
   project-hub: true
+qb/role/qb:
+  modules:
+  - nrser.docker.build

@@ -1,0 +1,19 @@
+##
+# Fail if the image already exists.
+##
+
+- name: >-
+    Look for images named `{{ docker_build_name_tag }}` in host docker service
+  shell: |-
+    docker images --quiet {{ docker_build_name_tag | quote }}
+  register: docker_build_images_results
+  changed_when: false
+
+
+- when: (docker_build_images_results.stdout_lines | length) == 0
+  name: >-
+    Build image
+  tags:
+  - build
+  include_tasks: >-
+    {{ role_path }}/tasks/build.yml

@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+# WANT_JSON
+
+##
+# It looks like I started working on this for a replacement for the Ansi-logic
+# in the tasks, but didn't finish / integrate it
+## 
+
+# init bundler in dev env
+if ENV['QB_DEV_ENV']
+  ENV.each {|k, v|
+    if k.start_with? 'QB_DEV_ENV_'
+      ENV[k.sub('QB_DEV_ENV_', '')] = v
+    end
+  }
+  require 'bundler/setup'
+end
+
+require 'qb'
+
+using NRSER
+using NRSER::Types
+
+class NrserDockerBuild < QB::Ansible::Module
+  
+  # define arg names to NRSER::Types::Type instances here and they
+  # will be type checked and set as @<name>
+  # 
+  # example:
+  # 
+  #     arg :x, NRSER::Types.array(String)
+  # 
+  # will check that the input json has a key named 'x' and that it's value
+  # is an Array of String instances, then set it's value as `@x`.
+  # 
+  arg :src, t.existing_dir_path
+  
+  arg :owner, t.maybe( )
+  
+  
+  def parse_host host
+    if host.include? ':'
+  end
+  
+  
+  def parsed_name_tag
+    @parsed_name_tag ||= begin
+      if @name_tag
+        name, _, tag = @name_tag.rpartition ':'
+        name_segs = name.split '/'
+        
+        t.match name_segs.length,
+          1, ->(_) {
+            {
+              repo_name: name_segs[0],
+            }
+          },
+          
+          2, ->(_) {
+            if name_segs[0].include? ':'
+              hostname, _, port = name_segs[0].split ':'
+              {
+                hostname: hostname,
+                port: port,
+                repo_name: name_segs[1],
+              }
+            else
+              {
+                owner: name_segs[0],
+                repo_name: name_segs[1],
+              }
+            end
+          },
+          
+          3, ->(_) {
+            
+          }
+      else
+        {}
+      end
+    end
+  end
+  
+  
+  def owner
+    @owner || parsed_name_tag[:owner]
+  end
+  
+  def name
+    @name || parsed_name_tag[:name, ]
+  end
+  
+  # entry point for the module. invoked by {\#run}.
+  # 
+  # @return [nil | {Symbol => #to_json}]
+  #   when returning:
+  #   
+  #   -   `nil`: module will successfully exit with no additional changes.
+  #       
+  #   -   `{Symbol => #to_json}`: Hash will be merged over @facts that
+  #       are returned by the module to be set in the Ansible runtime and
+  #       the module will exit successfully.
+  #       
+  def main
+    return nil
+  end # #main
+end # NrserDockerBuild
+
+NrserDockerBuild.new.run
